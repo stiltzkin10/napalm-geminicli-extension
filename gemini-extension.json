@@ -1,0 +1,16 @@
+{
+  "name": "napalm-geminicli-extension",
+  "version": "0.1.0",
+  "mcpServers": {
+    "napalm-geminicli-extension": {
+      "command": "uv",
+      "args": [
+        "run",
+        "python",
+        "${extensionPath}${/}servers/main.py"
+      ],
+      "cwd": "${extensionPath}"
+    }
+  },
+  "contextFileName": "servers/GEMINI.md"
+}

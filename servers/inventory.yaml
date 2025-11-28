@@ -1,0 +1,9 @@
+---
+arista1:
+  driver: eos
+  username: admin
+  password: secret
+juniper1:
+  driver: junos
+  username: admin
+  password: secret
