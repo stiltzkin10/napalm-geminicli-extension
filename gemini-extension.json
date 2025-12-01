@@ -1,6 +1,6 @@
 {
   "name": "napalm-geminicli-extension",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "mcpServers": {
     "napalm-geminicli-extension": {
       "command": "uv",

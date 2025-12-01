@@ -40,7 +40,7 @@ def get_inventory_data(hostname: str) -> tuple[Type[NetworkDriver], str, str]:
         device = inventory[hostname]
     except KeyError:
         logger.error(f"Device {hostname} not found in inventory")
-        exit(1)
+        return "Device not found in inventory."
 
     driver = device["driver"]
     username = device["username"]
@@ -56,6 +56,27 @@ def execute_device_method(hostname: str, method_name: str, *args) -> dict:
         method = getattr(device, method_name)
         data = method(*args) if args else method()
         return encode(data)
+
+
+@mcp.tool()
+async def get_device_os(hostname: str) -> dict:
+    """Return the device OS."""
+
+    # Load inventory file
+    if not os.path.exists(INVENTORY_FILE):
+        raise FileNotFoundError(
+            f"Inventory file not found at: {INVENTORY_FILE}. Absolute path: {os.path.abspath(INVENTORY_FILE)}"
+        )
+    with open(INVENTORY_FILE, "r") as fh:
+        inventory = yaml.safe_load(fh)
+
+    try:
+        device = inventory[hostname]
+    except KeyError:
+        logger.error(f"Device {hostname} not found in inventory")
+        return "Device not found in inventory."
+
+    return device["driver"]
 
 
 @mcp.tool()
@@ -102,7 +123,8 @@ async def get_lldp_neighbors(hostname: str) -> dict:
 
 @mcp.tool()
 async def run_command(hostname: str, command: str) -> dict:
-    """Run command on the device and return the output."""
+    """Run command on the device and return the output. The command needs to be native to the device OS."""
+
     driver, username, password = get_inventory_data(hostname)
     with driver(hostname, username, password) as device:
         data = device.cli([command])
