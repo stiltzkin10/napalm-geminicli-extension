@@ -40,7 +40,7 @@ def get_inventory_data(hostname: str) -> tuple[Type[NetworkDriver], str, str]:
         device = inventory[hostname]
     except KeyError:
         logger.error(f"Device {hostname} not found in inventory")
-        return "Device not found in inventory."
+        raise ValueError("Device not found in inventory.")
 
     driver = device["driver"]
     username = device["username"]
@@ -52,6 +52,7 @@ def get_inventory_data(hostname: str) -> tuple[Type[NetworkDriver], str, str]:
 def execute_device_method(hostname: str, method_name: str, *args) -> dict:
     """Execute a method on a NAPALM device and return encoded results."""
     driver, username, password = get_inventory_data(hostname)
+
     with driver(hostname, username, password) as device:
         method = getattr(device, method_name)
         data = method(*args) if args else method()
@@ -74,7 +75,7 @@ async def get_device_os(hostname: str) -> dict:
         device = inventory[hostname]
     except KeyError:
         logger.error(f"Device {hostname} not found in inventory")
-        return "Device not found in inventory."
+        raise ValueError("Device not found in inventory.")
 
     return device["driver"]
 
@@ -126,6 +127,7 @@ async def run_command(hostname: str, command: str) -> dict:
     """Run command on the device and return the output. The command needs to be native to the device OS."""
 
     driver, username, password = get_inventory_data(hostname)
+
     with driver(hostname, username, password) as device:
         data = device.cli([command])
 
