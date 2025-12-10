@@ -107,13 +107,18 @@ async def get_facts(hostname: str) -> dict:
 @mcp.tool()
 async def get_interfaces(hostname: str) -> dict:
     """Get interface details for the given device."""
-    return execute_device_method(hostname, "get_interfaces")
 
+    driver, username, password = get_inventory_data(hostname)
 
-@mcp.tool()
-async def get_interfaces_ip(hostname: str) -> dict:
-    """Get interface IP addresses for the given device."""
-    return execute_device_method(hostname, "get_interfaces_ip")
+    with driver(hostname, username, password) as device:
+        interfaces = device.get_interfaces()
+        interface_ips = device.get_interfaces_ip()
+
+        for interface in interfaces:
+            if interface in interface_ips:
+                interfaces[interface].update(interface_ips[interface])
+
+    return encode(interfaces)
 
 
 @mcp.tool()
